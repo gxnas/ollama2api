@@ -2,7 +2,7 @@ name: Sync Upstream
 
 on:
   schedule:
-    - cron: "*/10 * * * *"
+    - cron: "0 4 * * *"
   workflow_dispatch:
 
 jobs:
@@ -10,15 +10,36 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout fork
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Sync upstream
+      - name: Add upstream
         run: |
           git remote add upstream https://github.com/xiaolajiaoyyds/ollama2api.git
+
+      - name: Fetch upstream
+        run: |
           git fetch upstream
-          git checkout main
+
+      - name: Check for updates
+        id: check
+        run: |
+          LOCAL=$(git rev-parse HEAD)
+          REMOTE=$(git rev-parse upstream/main)
+
+          echo "local=$LOCAL"
+          echo "remote=$REMOTE"
+
+          if [ "$LOCAL" = "$REMOTE" ]; then
+            echo "update=false" >> $GITHUB_OUTPUT
+          else
+            echo "update=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Merge upstream
+        if: steps.check.outputs.update == 'true'
+        run: |
           git merge upstream/main --ff-only
           git push origin main

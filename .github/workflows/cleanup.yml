@@ -2,17 +2,20 @@ name: Cleanup Images
 
 on:
   schedule:
-    - cron: "0 4 * * *"
+    - cron: "0 5 * * *"
   workflow_dispatch:
 
 jobs:
   cleanup:
     runs-on: ubuntu-latest
 
+    permissions:
+      packages: write
+
     steps:
       - name: Delete old images
         uses: snok/container-retention-policy@v2
         with:
-          image-names: ollama2api
+          image-names: gxnas/ollama2api
           cut-off: 7d
           keep-at-least: 5

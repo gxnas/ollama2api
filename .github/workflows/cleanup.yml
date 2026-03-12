@@ -1,8 +1,8 @@
-name: Cleanup GHCR
+name: Cleanup Images
 
 on:
   schedule:
-    - cron: "0 3 * * 0"
+    - cron: "0 4 * * *"
   workflow_dispatch:
 
 jobs:
@@ -10,10 +10,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: snok/container-retention-policy@v2
+      - name: Delete old images
+        uses: snok/container-retention-policy@v2
         with:
-          account: ${{ github.repository_owner }}
-          token: ${{ secrets.GITHUB_TOKEN }}
           image-names: ollama2api
-          cut-off: 10d
+          cut-off: 7d
           keep-at-least: 5

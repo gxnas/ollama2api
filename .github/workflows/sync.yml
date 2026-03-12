@@ -2,7 +2,7 @@ name: Sync Upstream
 
 on:
   schedule:
-    - cron: "0 */6 * * *"
+    - cron: "*/10 * * * *"
   workflow_dispatch:
 
 jobs:
@@ -10,12 +10,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Sync upstream
-        uses: aormsby/Fork-Sync-With-Upstream-action@v3.4.1
-        with:
-          upstream_sync_repo: xiaolajiaoyyds/ollama2api
-          upstream_sync_branch: main
-          target_sync_branch: main
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git remote add upstream https://github.com/xiaolajiaoyyds/ollama2api.git
+          git fetch upstream
+          git checkout main
+          git merge upstream/main --ff-only
+          git push origin main
